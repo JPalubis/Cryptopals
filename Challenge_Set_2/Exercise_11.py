@@ -4,6 +4,9 @@ from typing import Callable
 
 from Crypto.Cipher import AES
 
+import sys
+sys.path.insert(0, '/Users/jlpal/Cryptopals/Cryptopals/Challenge_Set_1')
+
 from Exercise_8 import bytes_to_chunks
 from Exercise_9 import pkcs7
 
