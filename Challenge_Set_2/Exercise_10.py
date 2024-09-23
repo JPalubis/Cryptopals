@@ -1,7 +1,7 @@
-from base64 import b64decode
-
 import sys
 sys.path.insert(0, '/Users/jlpal/Cryptopals/Cryptopals/Challenge_Set_1')
+
+from base64 import b64decode
 
 from Exercise_2 import bytes_xor
 from Exercise_7 import aes_ecb_dec, AES
