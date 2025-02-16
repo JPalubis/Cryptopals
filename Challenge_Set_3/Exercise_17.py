@@ -2,7 +2,16 @@ import sys
 sys.path.insert(0, '/Users/jlpal/Cryptopals/Cryptopals/Challenge_Set_1')
 sys.path.insert(0, '/Users/jlpal/Cryptopals/Cryptopals/Challenge_Set_2')
 
+from Crypto.Cipher import AES
 from os import urandom
+from base64 import b64decode
+from random import choice # This is not totally considered "cryptographically secure"
+from typing import Optional
+
+from Exercise_2 import bytes_xor
+from Exercise_8 import bytes_to_chunks
+from Exercise_9 import pkcs7, strip_pkcs7, PaddingError
+
 
 BLOCK_SIZE = 16
 
@@ -21,3 +30,12 @@ strings = [
     b"MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g="
     b"MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93"
 ]
+
+def enc(ind: Optional[int] = None) -> bytes:
+    ...
+
+def dec(iv: bytes, ciphertext: bytes) -> bytes:
+    ...
+
+def padding_oracle(iv: bytes, ciphertext: bytes) -> bool:
+    ...
