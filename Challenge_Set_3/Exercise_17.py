@@ -32,7 +32,9 @@ strings = [
 ]
 
 def enc(ind: Optional[int] = None) -> bytes:
-    ...
+    s = choice(strings) if ind is None else strings[ind]
+    cipher = AES.new(_key, AES.MODE_CBC, iv)
+    return cipher.encrypt(pkcs7(s))
 
 def dec(iv: bytes, ciphertext: bytes) -> bytes:
     ...
@@ -53,3 +55,4 @@ def padding_oracle_attack(ciphertext: bytes, oracle) -> bytes: # This is for mul
         plaintext += single_block_attack(block_iv, block, oracle)
         block_iv = block
     return strip_pkcs7(plaintext)
+    # Need to consider when this throws an error
