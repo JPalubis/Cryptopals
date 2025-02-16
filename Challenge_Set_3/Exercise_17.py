@@ -39,3 +39,10 @@ def dec(iv: bytes, ciphertext: bytes) -> bytes:
 
 def padding_oracle(iv: bytes, ciphertext: bytes) -> bool:
     ...
+
+# Types of attacks
+def single_block_attack(iv: bytes, block: bytes, oracle) -> bytes:
+    ...
+
+def padding_oracle_attack(ciphertext: bytes, oracle) -> bytes:
+    ...
