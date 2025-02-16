@@ -19,16 +19,16 @@ _key = urandom(16)
 iv = urandom(BLOCK_SIZE)
 
 strings = [
-    b"MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc="
-    b"MDAwMDAxV2l0aCB0aGUgYmFzcyBraWNrZWQgaW4gYW5kIHRoZSBWZWdhJ3MgYXJlIHB1bXBpbic="
-    b"MDAwMDAyUXVpY2sgdG8gdGhlIHBvaW50LCB0byB0aGUgcG9pbnQsIG5vIGZha2luZw=="
-    b"MDAwMDAzQ29va2luZyBNQydzIGxpa2UgYSBwb3VuZCBvZiBiYWNvbg=="
-    b"MDAwMDA0QnVybmluZyAnZW0sIGlmIHlvdSBhaW4ndCBxdWljayBhbmQgbmltYmxl"
-    b"MDAwMDA1SSBnbyBjcmF6eSB3aGVuIEkgaGVhciBhIGN5bWJhbA=="
-    b"MDAwMDA2QW5kIGEgaGlnaCBoYXQgd2l0aCBhIHNvdXBlZCB1cCB0ZW1wbw=="
-    b"MDAwMDA3SSdtIG9uIGEgcm9sbCwgaXQncyB0aW1lIHRvIGdvIHNvbG8="
-    b"MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g="
-    b"MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93"
+    b"MDAwMDAwTm93IHRoYXQgdGhlIHBhcnR5IGlzIGp1bXBpbmc=",
+    b"MDAwMDAxV2l0aCB0aGUgYmFzcyBraWNrZWQgaW4gYW5kIHRoZSBWZWdhJ3MgYXJlIHB1bXBpbic=",
+    b"MDAwMDAyUXVpY2sgdG8gdGhlIHBvaW50LCB0byB0aGUgcG9pbnQsIG5vIGZha2luZw==",
+    b"MDAwMDAzQ29va2luZyBNQydzIGxpa2UgYSBwb3VuZCBvZiBiYWNvbg==",
+    b"MDAwMDA0QnVybmluZyAnZW0sIGlmIHlvdSBhaW4ndCBxdWljayBhbmQgbmltYmxl",
+    b"MDAwMDA1SSBnbyBjcmF6eSB3aGVuIEkgaGVhciBhIGN5bWJhbA==",
+    b"MDAwMDA2QW5kIGEgaGlnaCBoYXQgd2l0aCBhIHNvdXBlZCB1cCB0ZW1wbw==",
+    b"MDAwMDA3SSdtIG9uIGEgcm9sbCwgaXQncyB0aW1lIHRvIGdvIHNvbG8=",
+    b"MDAwMDA4b2xsaW4nIGluIG15IGZpdmUgcG9pbnQgb2g=",
+    b"MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93",
 ]
 
 def enc(ind: Optional[int] = None) -> bytes:
@@ -72,16 +72,26 @@ def single_block_attack(iv: bytes, block: bytes, oracle) -> bytes:
         
         isolating_iv[-pad_len] = candidate ^ pad_len
     
+    # debug code
+    decrypted_block = bytes_xor(plaintext, iv)
+    print(f"Decrypted block: {decrypted_block}")
+
     return bytes_xor(plaintext, iv)
         
 
 def padding_oracle_attack(ciphertext: bytes, oracle) -> bytes: # This is for multiple blocks
     plaintext = b''
     block_iv = iv
-    blocks = bytes_to_chunks(ciphertext, 16)
+    blocks = bytes_to_chunks(ciphertext, BLOCK_SIZE)
 
-    for i, block in enumerate(ciphertext, BLOCK_SIZE):
+    for i, block in enumerate(blocks):
         plaintext += single_block_attack(block_iv, block, oracle)
         block_iv = block
     return strip_pkcs7(plaintext)
     # Need to consider when this throws an error
+
+if __name__ == "__main__":
+    ciphertext = enc()
+    print(f"Ciphertext: {ciphertext}") # debug print
+    plaintext = padding_oracle_attack(ciphertext, padding_oracle)
+    print(f"Plaintext: {plaintext}")
