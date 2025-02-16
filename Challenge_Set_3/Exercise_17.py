@@ -34,17 +34,46 @@ strings = [
 def enc(ind: Optional[int] = None) -> bytes:
     s = choice(strings) if ind is None else strings[ind]
     cipher = AES.new(_key, AES.MODE_CBC, iv)
-    return cipher.encrypt(pkcs7(s))
+    return cipher.encrypt(pkcs7(s)) # This is our ciphertext
 
-def dec(iv: bytes, ciphertext: bytes) -> bytes:
-    ...
+def _dec(iv: bytes, ciphertext: bytes) -> bytes:
+    cipher = AES.new(_key, AES.MODE_CBC, iv)
+    return cipher.decrypt(ciphertext) # This is out plaintext
 
 def padding_oracle(iv: bytes, ciphertext: bytes) -> bool:
-    ...
+    plaintext = _dec(iv, ciphertext)
+    try:
+        strip_pkcs7(plaintext)
+    except PaddingError:
+        return False
+    return True
 
 # Types of attacks
 def single_block_attack(iv: bytes, block: bytes, oracle) -> bytes:
-    ...
+    plaintext = b''
+    isolating_iv = [0] * BLOCK_SIZE # Meant to hold parts of the plaintext until they are needed
+
+    for pad_len in range(1, BLOCK_SIZE + 1):
+        padding_iv = [pad_len ^ b for b in isolating_iv]
+        for candidate in range(256):
+            padding_iv[-pad_len] = candidate
+            new_iv = bytes(padding_iv)
+            if oracle(new_iv, block):
+                if pad_len == 1:
+                    padding_iv[-2] ^= 1
+                    new_iv = bytes(padding_iv)
+                    if not oracle(new_iv, block):
+                        continue # Takes us back to the start of the nested 'for' loop
+                plaintext = bytes([candidate ^ pad_len]) + plaintext
+                break
+        else:
+            raise Exception(f"No match found for byte {pad_len}") 
+            # This won't occur except in the noisy case, which is unlikely to happen anyway
+        
+        isolating_iv[-pad_len] = candidate ^ pad_len
+    
+    return bytes_xor(plaintext, iv)
+        
 
 def padding_oracle_attack(ciphertext: bytes, oracle) -> bytes: # This is for multiple blocks
     plaintext = b''
