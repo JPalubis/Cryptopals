@@ -44,5 +44,12 @@ def padding_oracle(iv: bytes, ciphertext: bytes) -> bool:
 def single_block_attack(iv: bytes, block: bytes, oracle) -> bytes:
     ...
 
-def padding_oracle_attack(ciphertext: bytes, oracle) -> bytes:
-    ...
+def padding_oracle_attack(ciphertext: bytes, oracle) -> bytes: # This is for multiple blocks
+    plaintext = b''
+    block_iv = iv
+    blocks = bytes_to_chunks(ciphertext, 16)
+
+    for i, block in enumerate(ciphertext, BLOCK_SIZE):
+        plaintext += single_block_attack(block_iv, block, oracle)
+        block_iv = block
+    return strip_pkcs7(plaintext)
